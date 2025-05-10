@@ -1,4 +1,4 @@
 sports_bets.exe
 sqlite/
 csv/
-nba/__pycache__/
+nba_model.py

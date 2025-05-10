@@ -1,13 +1,13 @@
-from .data_collection import Data_Collection
-from .data_storage import Data_Storage
+from data_collection import Data_Collection
+from data_storage import Data_Storage
 from datetime import datetime, timedelta
-from .nba_criteria import Nba_Criteria
+from nba_criteria import Nba_Criteria
 import csv
 from pytz import timezone
-from rich.console import Console
-from rich.table import Table
+# from rich.console import Console
+# from rich.table import Table
 
-def nba(csv_output_directory):
+def nba_data(csv_output_directory):
     add_pregame_data()
     update_scores()
     output_csv(csv_output_directory)
@@ -58,22 +58,3 @@ def output_csv(output_directory):
         csvWriter = csv.writer(csvFile)
         csvWriter.writerow(headers)
         csvWriter.writerows(tableData)
-
-# def console_output:
-    # ds = Data_Storage()
-    # betting_data = ds.select_betting_data()
-    # nbaCriteria = Nba_Criteria()
-    # console = Console()
-    # table = Table(title='NBA Picks') 
-    # headers = ['away', 'home', 'home spread', 'total line', 'ppg total pick', 'ts%, reb%, tov% spread pick', 'pace, ortg spread pick', 'opp drtg, pace spread pick', 'avg pace, ortg, drtg spread pick']
-    # for header in headers:
-    #     table.add_column(header)
-    # for game_data in betting_data:
-    #     row = [game_data['away'], game_data['home'], str(game_data['home_spread']), str(game_data['total_line'])]
-    #     row.append(nbaCriteria.get_ppg_total_pick(game_data))
-    #     row.append(nbaCriteria.get_ts_reb_tov_spread_pick(game_data))
-    #     row.append(nbaCriteria.get_ppg_spread_pick(game_data))
-    #     row.append(nbaCriteria.get_drtg_pace_spread_pick(game_data))
-    #     row.append(nbaCriteria.get_avg_pace_ortg_drtg_spread_pick(game_data))
-    #     table.add_row(*row)
-    # console.print(table)

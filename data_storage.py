@@ -1,8 +1,8 @@
 import sqlite3
-# drop id, home game count, away game count, ast percent, ast to tov, ast ratio, oreb percent, dreb percent, efg percent
+
 class Data_Storage:
     def __init__(self):
-        self.conn = sqlite3.connect('./sqlite/sports_bets.sqlite')
+        self.conn = sqlite3.connect('./sqlite/nba_bets.sqlite')
         cursor = self.conn.cursor()
         cursor.execute('CREATE TABLE IF NOT EXISTS nba_game_data(date INTEGER, away TEXT, home TEXT, away_spread REAL, home_spread REAL, total_line REAL, away_score INTEGER, home_score INTEGER, away_offrtg REAL, away_defrtg REAL, away_reb_percent REAL, away_tov_percent REAL, away_ts_percent REAL, away_pace REAL, away_pie REAL, home_offrtg REAL, home_defrtg REAL, home_reb_percent REAL, home_tov_percent REAL, home_ts_percent REAL, home_pace REAL, home_pie REAL, UNIQUE(date, away, home) ON CONFLICT IGNORE)')
         self.conn.commit()
