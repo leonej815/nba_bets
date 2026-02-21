@@ -3,3 +3,5 @@ sqlite/nba_bets.sqlite
 csv/nba_game_data.csv
 json/settings.json
 res/
+nba_criteria.py
+__pycache__/
