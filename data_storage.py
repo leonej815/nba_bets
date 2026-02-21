@@ -1,6 +1,8 @@
 import sqlite3
 
+# class for creating and interacting with the database
 class Data_Storage:
+    # connects to sqlite and creates table to store data if it doesn't exist
     def __init__(self):
         self.conn = sqlite3.connect('./sqlite/nba_bets.sqlite')
         cursor = self.conn.cursor()
@@ -33,6 +35,7 @@ class Data_Storage:
         ''')
         self.conn.commit()
 
+    # used create a game record and insert the spread lines, and total line into the database for that game
     def insert_line_data(self, date, line_data_list):
         for line_data in line_data_list:
             self._insert_new_record(date, line_data['away'], line_data['home'])
@@ -45,6 +48,7 @@ class Data_Storage:
                 line_data['home']
             )
 
+    # used to update the spread lines, and total line for a given game
     def _update_line_data(self, away_spread, home_spread, total_line, date, away, home):
         cursor = self.conn.cursor()
         sql = '''
@@ -55,12 +59,15 @@ class Data_Storage:
         cursor.execute(sql, (away_spread, home_spread, total_line, date, away, home))
         self.conn.commit()
 
+    # inserts a new game record into the database
     def _insert_new_record(self, date, away, home):
         cursor = self.conn.cursor()
         sql = 'INSERT INTO nba_game_data(date, away, home) VALUES(?, ?, ?)'
         cursor.execute(sql, (date, away, home))
         self.conn.commit()
 
+    # selects records where there is a game entry but the stats are NULL and need to be added
+    # returns a list of dictionaries with the information about the games: date, away team, home team
     def select_stats_needed(self):
         cursor = self.conn.cursor()
         sql = 'SELECT date, away, home FROM nba_game_data WHERE away_offrtg IS NULL'
@@ -73,6 +80,9 @@ class Data_Storage:
         ]
         return stats_needed_list
 
+    # takes a list of dictionaries with the information about games: date, away team, home team
+    # also takes 2 level dictionary that contains the stats needed for all the teams in stats_needed_list
+    # the function updates the records that correspond to the games in stats_needed_list with all the stats
     def insert_stats(self, stats_needed_list, stats):
         for game_data in stats_needed_list:
             date = game_data['date']
@@ -80,7 +90,6 @@ class Data_Storage:
             home = game_data['home']
             cursor = self.conn.cursor()
 
-            # Extract stats for away and home teams
             stat_values = (
                 stats[away]['offrtg'], stats[away]['defrtg'], stats[away]['reb%'], stats[away]['tov%'], 
                 stats[away]['ts%'], stats[away]['pace'], stats[away]['pie'], 
@@ -99,6 +108,7 @@ class Data_Storage:
             cursor.execute(sql, stat_values + (date, away, home))
             self.conn.commit()
 
+    # returns a list of dates where there are game records without the final score added
     def findDatesForScores(self):
         cursor = self.conn.cursor()
         sql = 'SELECT DISTINCT date FROM nba_game_data WHERE away_score IS NULL'
@@ -106,6 +116,8 @@ class Data_Storage:
         self.conn.commit()
         return [str(date[0]) for date in result.fetchall()]
 
+    # gameScoresList is a list of dictionaries that have the away team, home team, away score, and home score
+    # for a given date this function updates all the records for that date with final scores using gameScoresList
     def updateScores(self, date, gameScoresList):
         cursor = self.conn.cursor()
         for gameScoreDict in gameScoresList:

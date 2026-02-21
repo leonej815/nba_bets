@@ -1,10 +1,11 @@
 from data_collection import Data_Collection
 from data_storage import Data_Storage
 from datetime import datetime, timedelta
-from nba_criteria import Nba_Criteria
 import csv
 from pytz import timezone
 
+# function to add games that haven't started yet to database
+# adds scores to 
 def nba_data(csv_output_directory):
     add_pregame_data()
     update_scores()

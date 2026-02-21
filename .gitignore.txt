@@ -2,3 +2,4 @@ sports_bets.exe
 sqlite/
 csv/
 nba_model.py
+json/settings.json

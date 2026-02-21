@@ -2,61 +2,64 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 import datetime
 
+# class that uses Selenium to webscrape data from various sites and organizes it
 class Data_Collection:
     def webDriver(self):
         options = webdriver.ChromeOptions()
-        # Uncomment the next line to run the scraper in headless mode
         # options.add_argument("--headless")
         options.add_argument('--log-level=3')
         self.driver = webdriver.Chrome(options=options)
 
+    # method that uses the ESPN NBA scoreboard page of a particular date to scrape data from
+    # it is meant to be used to get the lines for the games on the given date before the games have started
+    # it returns a list of dictionaries where each dictionary contains the away team, home team, away spread, home spread, and total spread
     def retrieveLineData(self, date):
-        TEAM_NAME_TO_SYMBOL = {
+        team_name_to_symbol = {
             'celtics':'bos', 'warriors':'gs', 'cavaliers':'cle', 'grizzlies':'mem', 'nets':'bkn', 'lakers':'lal',
             'hawks':'atl', 'kings':'sac', 'bulls':'chi', 'nuggets':'den', 'magic':'orl', 'thunder':'okc',
             'bucks':'mil', 'suns':'phx', 'mavericks':'dal', 'wizards':'wsh', 'knicks':'ny', 'hornets':'cha',
             'raptors':'tor', 'timberwolves':'min', 'clippers':'lac', '76ers':'phi', 'rockets':'hou', 'pacers':'ind',
             'pelicans':'no', 'blazers':'por', 'pistons':'det', 'spurs':'sa', 'heat':'mia', 'jazz':'utah'
         }
-        MIN_GAME_COUNT = 10
-        URL = f'https://www.espn.com/nba/scoreboard/_/date/{date}'
-        SCOREBOARD_SELECTOR = '.Scoreboard__RowContainer'
-        TEAM_SELECTOR = '.ScoreCell__TeamName.ScoreCell__TeamName--shortDisplayName'
-        LINE_SELECTOR = '.VZTD.mLASH.rIczU.LNzKp.jsU.hfDkF.FoYYc.FuEs'
-        RECORD_SELECTOR = '.ScoreboardScoreCell__Record'
+        min_game_count = 10
+        url = f'https://www.espn.com/nba/scoreboard/_/date/{date}'
+        scoreboard_selector = '.Scoreboard__RowContainer'
+        team_selector = '.ScoreCell__TeamName.ScoreCell__TeamName--shortDisplayName'
+        line_selector = '.VZTD.mLASH.rIczU.LNzKp.jsU.hfDkF.FoYYc.FuEs'
+        record_selector = '.ScoreboardScoreCell__Record'
 
         self.webDriver()
-        self.driver.get(URL)
-        scoreboardEls = self.cssSelect(SCOREBOARD_SELECTOR)
+        self.driver.get(url)
+        scoreboardEls = self.cssSelect(scoreboard_selector)
 
         gameDataArr = []
         for scoreboardEl in scoreboardEls:
-            # Skip games with fewer than 10 games played by either team
-            recordEls = scoreboardEl.find_elements(By.CSS_SELECTOR, RECORD_SELECTOR)
+            # skip games with fewer than 10 games played by either team
+            recordEls = scoreboardEl.find_elements(By.CSS_SELECTOR, record_selector)
             awayGameCount = sum([int(x) for x in recordEls[0].text.split('-')])
             homeGameCount = sum([int(x) for x in recordEls[2].text.split('-')])
-            if awayGameCount < MIN_GAME_COUNT or homeGameCount < MIN_GAME_COUNT:
+            if awayGameCount < min_game_count or homeGameCount < min_game_count:
                 continue
 
-            # Skip games with no betting lines
-            lineEls = scoreboardEl.find_elements(By.CSS_SELECTOR, LINE_SELECTOR)
+            # skip games with no betting lines
+            lineEls = scoreboardEl.find_elements(By.CSS_SELECTOR, line_selector)
             if not lineEls:
                 continue
 
-            # Extract betting line data
+            # extract betting line data
             favoredTeamSymbol = lineEls[0].text.split(' ')[0].lower()
             spread = lineEls[0].text.split(' ')[-1]
             total = lineEls[1].text
 
-            # Extract team names
-            teamEls = scoreboardEl.find_elements(By.CSS_SELECTOR, TEAM_SELECTOR)
+            # extract team names
+            teamEls = scoreboardEl.find_elements(By.CSS_SELECTOR, team_selector)
             awayTeam = teamEls[0].text.split(' ')[-1].lower()
             homeTeam = teamEls[1].text.split(' ')[-1].lower()
 
-            # Determine spread for home and away teams
-            homeSpread = spread if favoredTeamSymbol == TEAM_NAME_TO_SYMBOL[homeTeam] else str(float(spread) * -1)
+            # determine spread for home and away teams
+            homeSpread = spread if favoredTeamSymbol == team_name_to_symbol[homeTeam] else str(float(spread) * -1)
 
-            # Compile game data
+            # compile game data
             gameData = {
                 'away': awayTeam,
                 'home': homeTeam,
@@ -68,29 +71,30 @@ class Data_Collection:
 
         return gameDataArr
 
+    # method goes to nba.com's advanced team stats page with last 10 games filter and returns stats for all teams
     def retrieve_stats(self):
         self.webDriver()
-        STATS_URL = 'https://www.nba.com/stats/teams/advanced?PerMode=PerGame&LastNGames=10'
+        stats_url = 'https://www.nba.com/stats/teams/advanced?PerMode=PerGame&LastNGames=10'
 
-        HEADING_SELECTOR = '.Crom_container__C45Ti.crom-container .Crom_table__p1iZz .Crom_headers__mzI_m th'
-        ROW_SELECTOR = '.Crom_body__UYOcU tr'
-        VALUE_SELECTOR = 'td'
+        heading_selector = '.Crom_container__C45Ti.crom-container .Crom_table__p1iZz .Crom_headers__mzI_m th'
+        row_selector = '.Crom_body__UYOcU tr'
+        value_selector = 'td'
 
-        self.driver.get(STATS_URL)
+        self.driver.get(stats_url)
 
-        # Extract table headings
-        headingEls = self.cssSelect(HEADING_SELECTOR)
-        rowEls = self.cssSelect(ROW_SELECTOR)
+        # extract table headings
+        headingEls = self.cssSelect(heading_selector)
+        rowEls = self.cssSelect(row_selector)
 
         headings = []
         for el in headingEls:
             text = el.text.lower().replace('\n', '_')
             headings.append(text)
 
-        # Extract team stats
+        # extract team stats
         stats = {}
         for el in rowEls:
-            valueEls = el.find_elements(By.CSS_SELECTOR, VALUE_SELECTOR)
+            valueEls = el.find_elements(By.CSS_SELECTOR, value_selector)
             teamName = valueEls[1].text.split(' ')[-1].lower()
 
             stats[teamName] = {}
@@ -99,18 +103,20 @@ class Data_Collection:
 
         return stats
 
+    # retrieves the number of home games played in the last 10 games for all teams
+    # returns a dictionary for all teams of the format {team name: number of home games in last 10}
     def retrieveHomeGameCounts(self):
         self.webDriver()
-        URL = 'https://www.nba.com/stats/teams/advanced?PerMode=PerGame&LastNGames=10&Location=Home'
-        ROW_SELECTOR = '.Crom_body__UYOcU tr'
-        VALUE_SELECTOR = 'td'
+        url = 'https://www.nba.com/stats/teams/advanced?PerMode=PerGame&LastNGames=10&Location=Home'
+        row_selector = '.Crom_body__UYOcU tr'
+        value_selector = 'td'
 
-        self.driver.get(URL)
-        rowEls = self.cssSelect(ROW_SELECTOR)
+        self.driver.get(url)
+        rowEls = self.cssSelect(row_selector)
 
         homeGameCounts = {}
         for el in rowEls:
-            valueEls = el.find_elements(By.CSS_SELECTOR, VALUE_SELECTOR)
+            valueEls = el.find_elements(By.CSS_SELECTOR, value_selector)
             teamName = valueEls[1].text.split(' ')[-1].lower()
             homeGameCount = valueEls[2].text
 
@@ -118,35 +124,37 @@ class Data_Collection:
 
         return homeGameCounts
 
+    # method goes to ESPN NBA scoredboard page for given date and retrieves the teams and scores for each
+    # returns list of dictionaries [{away: away team, home: home team, away_score: away score, home_score: home score}, ...]
     def retrieveScores(self, date):
-        URL = f'https://www.espn.com/nba/scoreboard/_/date/{date}'
-        TEAM_SELECTOR = '.ScoreCell__TeamName.ScoreCell__TeamName--shortDisplayName'
-        SCORE_SELECTOR = '.ScoreCell__Score.ScoreCell_Score--scoreboard'
-        SCOREBOARD_SELECTOR = '.Scoreboard__RowContainer'
-        PROGRESS_SELECTOR = '.ScoreCell__Time'
+        url = f'https://www.espn.com/nba/scoreboard/_/date/{date}'
+        team_selector = '.ScoreCell__TeamName.ScoreCell__TeamName--shortDisplayName'
+        score_selector = '.ScoreCell__Score.ScoreCell_Score--scoreboard'
+        score_board_selector = '.Scoreboard__RowContainer'
+        progress_selector = '.ScoreCell__Time'
 
         self.webDriver()
-        self.driver.get(URL)
+        self.driver.get(url)
 
-        scoreboardEls = self.cssSelect(SCOREBOARD_SELECTOR)
+        scoreboardEls = self.cssSelect(score_board_selector)
 
         scoreData = []
         for scoreboardEl in scoreboardEls:
-            # Skip games that are not yet finished
-            gameProgress = scoreboardEl.find_element(By.CSS_SELECTOR, PROGRESS_SELECTOR).text.split('/')[0].lower()
+            # skip games that are not yet finished
+            gameProgress = scoreboardEl.find_element(By.CSS_SELECTOR, progress_selector).text.split('/')[0].lower()
             if gameProgress != 'final':
                 continue
 
-            # Extract team names and scores
-            teamEls = scoreboardEl.find_elements(By.CSS_SELECTOR, TEAM_SELECTOR)
+            # extract team names and scores
+            teamEls = scoreboardEl.find_elements(By.CSS_SELECTOR, team_selector)
             awayTeam = teamEls[0].text.split(' ')[-1].lower()
             homeTeam = teamEls[1].text.split(' ')[-1].lower()
 
-            scoreEls = scoreboardEl.find_elements(By.CSS_SELECTOR, SCORE_SELECTOR)
+            scoreEls = scoreboardEl.find_elements(By.CSS_SELECTOR, score_selector)
             awayScore = scoreEls[0].text
             homeScore = scoreEls[1].text
 
-            # Compile score data
+            # compile score data
             gameData = {
                 'away': awayTeam,
                 'home': homeTeam,
@@ -157,5 +165,6 @@ class Data_Collection:
 
         return scoreData
 
+    # shortcut for selenium element finder by css selector
     def cssSelect(self, cssSelector):
         return self.driver.find_elements(By.CSS_SELECTOR, cssSelector)
