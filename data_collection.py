@@ -3,14 +3,7 @@ from selenium.webdriver.common.by import By
 import datetime
 
 class Data_Collection:
-    """
-    A class for collecting NBA-related data from web sources using Selenium.
-    """
-
     def webDriver(self):
-        """
-        Initializes the Selenium WebDriver with specified Chrome options.
-        """
         options = webdriver.ChromeOptions()
         # Uncomment the next line to run the scraper in headless mode
         # options.add_argument("--headless")
@@ -18,15 +11,6 @@ class Data_Collection:
         self.driver = webdriver.Chrome(options=options)
 
     def retrieveLineData(self, date):
-        """
-        Retrieves NBA betting line data for a specific date from ESPN.
-
-        Args:
-            date (str): The date in 'yyyymmdd' format.
-
-        Returns:
-            list: A list of dictionaries containing game data.
-        """
         TEAM_NAME_TO_SYMBOL = {
             'celtics':'bos', 'warriors':'gs', 'cavaliers':'cle', 'grizzlies':'mem', 'nets':'bkn', 'lakers':'lal',
             'hawks':'atl', 'kings':'sac', 'bulls':'chi', 'nuggets':'den', 'magic':'orl', 'thunder':'okc',
@@ -85,12 +69,6 @@ class Data_Collection:
         return gameDataArr
 
     def retrieve_stats(self):
-        """
-        Retrieves advanced NBA team stats for the last 10 games from NBA.com.
-
-        Returns:
-            dict: A dictionary of stats keyed by team name.
-        """
         self.webDriver()
         STATS_URL = 'https://www.nba.com/stats/teams/advanced?PerMode=PerGame&LastNGames=10'
 
@@ -122,12 +100,6 @@ class Data_Collection:
         return stats
 
     def retrieveHomeGameCounts(self):
-        """
-        Retrieves the number of home games played by each NBA team in the last 10 games.
-
-        Returns:
-            dict: A dictionary mapping team names to their home game counts.
-        """
         self.webDriver()
         URL = 'https://www.nba.com/stats/teams/advanced?PerMode=PerGame&LastNGames=10&Location=Home'
         ROW_SELECTOR = '.Crom_body__UYOcU tr'
@@ -147,15 +119,6 @@ class Data_Collection:
         return homeGameCounts
 
     def retrieveScores(self, date):
-        """
-        Retrieves final scores for NBA games played on a specific date.
-
-        Args:
-            date (str): The date in 'yyyymmdd' format.
-
-        Returns:
-            list: A list of dictionaries containing game score data.
-        """
         URL = f'https://www.espn.com/nba/scoreboard/_/date/{date}'
         TEAM_SELECTOR = '.ScoreCell__TeamName.ScoreCell__TeamName--shortDisplayName'
         SCORE_SELECTOR = '.ScoreCell__Score.ScoreCell_Score--scoreboard'
@@ -195,13 +158,4 @@ class Data_Collection:
         return scoreData
 
     def cssSelect(self, cssSelector):
-        """
-        Finds elements using a CSS selector.
-
-        Args:
-            cssSelector (str): The CSS selector to use.
-
-        Returns:
-            list: A list of Selenium WebElement objects matching the selector.
-        """
         return self.driver.find_elements(By.CSS_SELECTOR, cssSelector)

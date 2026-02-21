@@ -6,20 +6,11 @@ import csv
 from pytz import timezone
 
 def nba_data(csv_output_directory):
-    """
-    Orchestrates the workflow for collecting, storing, and exporting NBA data.
-
-    Args:
-        csv_output_directory (str): The directory where the output CSV file will be saved.
-    """
     add_pregame_data()
     update_scores()
     output_csv(csv_output_directory)
 
 def add_pregame_data():
-    """
-    Collects and stores pregame data, including lines and stats, for today's games.
-    """
     # Set timezone to US/Eastern and adjust for games played late at night
     tz = timezone('US/Eastern')
     today = datetime.now(tz)
@@ -47,9 +38,6 @@ def add_pregame_data():
     data_storage.insert_stats(stats_needed_list, stats)
 
 def update_scores():
-    """
-    Updates scores for games that are marked as incomplete in the database.
-    """
     # Initialize data collection and storage
     data_collection = Data_Collection()
     data_storage = Data_Storage()
@@ -65,12 +53,6 @@ def update_scores():
         data_storage.updateScores(date, gameScoresList)
 
 def output_csv(output_directory):
-    """
-    Exports all NBA game data from the database into a CSV file.
-
-    Args:
-        output_directory (str): The directory where the output CSV file will be saved.
-    """
     # Initialize data storage and retrieve data
     dataStorage = Data_Storage()
     headers = dataStorage.selectHeaders()
