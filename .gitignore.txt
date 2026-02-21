@@ -1,4 +1,0 @@
-sports_bets.exe
-sqlite/
-csv/
-json/settings.json
