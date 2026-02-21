@@ -1,6 +1,5 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-import datetime
 
 # class that uses Selenium to webscrape data from various sites and organizes it
 class Data_Collection:
@@ -10,7 +9,7 @@ class Data_Collection:
         options.add_argument('--log-level=3')
         self.driver = webdriver.Chrome(options=options)
 
-    # method that uses the ESPN NBA scoreboard page of a particular date to scrape data from
+    # method that uses the ESPN NBA scoreboard page of a particular date to scrape data
     # it is meant to be used to get the lines for the games on the given date before the games have started
     # it returns a list of dictionaries where each dictionary contains the away team, home team, away spread, home spread, and total spread
     def retrieveLineData(self, date):
@@ -25,7 +24,7 @@ class Data_Collection:
         url = f'https://www.espn.com/nba/scoreboard/_/date/{date}'
         scoreboard_selector = '.Scoreboard__RowContainer'
         team_selector = '.ScoreCell__TeamName.ScoreCell__TeamName--shortDisplayName'
-        line_selector = '.VZTD.mLASH.rIczU.LNzKp.jsU.hfDkF.FoYYc.FuEs'
+        line_selector = '.rIczU.iygLn'
         record_selector = '.ScoreboardScoreCell__Record'
 
         self.webDriver()
@@ -39,22 +38,24 @@ class Data_Collection:
             awayGameCount = sum([int(x) for x in recordEls[0].text.split('-')])
             homeGameCount = sum([int(x) for x in recordEls[2].text.split('-')])
             if awayGameCount < min_game_count or homeGameCount < min_game_count:
+                print('Not enough games played')
                 continue
+
+            # extract team names
+            teamEls = scoreboardEl.find_elements(By.CSS_SELECTOR, team_selector)
+            awayTeam = teamEls[0].text.split(' ')[-1].lower()
+            homeTeam = teamEls[1].text.split(' ')[-1].lower()
 
             # skip games with no betting lines
             lineEls = scoreboardEl.find_elements(By.CSS_SELECTOR, line_selector)
             if not lineEls:
+                print(f'Couldn\'t find lines for {awayTeam} vs {homeTeam}')
                 continue
 
             # extract betting line data
             favoredTeamSymbol = lineEls[0].text.split(' ')[0].lower()
             spread = lineEls[0].text.split(' ')[-1]
             total = lineEls[1].text
-
-            # extract team names
-            teamEls = scoreboardEl.find_elements(By.CSS_SELECTOR, team_selector)
-            awayTeam = teamEls[0].text.split(' ')[-1].lower()
-            homeTeam = teamEls[1].text.split(' ')[-1].lower()
 
             # determine spread for home and away teams
             homeSpread = spread if favoredTeamSymbol == team_name_to_symbol[homeTeam] else str(float(spread) * -1)

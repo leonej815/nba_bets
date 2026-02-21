@@ -12,16 +12,17 @@ def nba_data(csv_output_directory):
     output_csv(csv_output_directory)
 
 def add_pregame_data():
-    # Set timezone to US/Eastern and adjust for games played late at night
+    # set timezone to US/Eastern and adjust for games played late at night
     tz = timezone('US/Eastern')
     today = datetime.now(tz)
-    if today.hour < 4:  # Avoid collecting stats while games are still in progress
+    if today.hour < 4:  # avoid collecting stats while games are still in progress
         today = today - timedelta(days=1)
     date_today = today.strftime('%Y%m%d')
 
-    # Initialize data collection and fetch line data
+    # initialize data collection and fetch line data
     data_collection = Data_Collection()
     line_data = data_collection.retrieveLineData(date_today)
+
     if len(line_data) == 0:  # Exit if no line data is available
         return
 
