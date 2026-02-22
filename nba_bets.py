@@ -8,6 +8,7 @@ def main():
         settings_file = './json/settings.json'
         settings_template_file = './json/settings.template.json'
 
+        # check if using settings.json or settings.template.json
         if not os.path.exists(settings_file):
             if os.path.exists(settings_template_file):
                 print("Local settings not found. Creating settings.json from template...")
@@ -16,18 +17,18 @@ def main():
                 print("Error: No settings or template file found.")
                 return
 
-        # Load the settings from the JSON configuration file
+        # load the settings from the JSON configuration file
         with open(settings_file) as f:
         # with open('./json/settings.template.json') as f:
             settings = json.loads(f.read())
 
-        # Extract the output directory for CSV files
+        # extract the output directory for CSV files
         csv_output_directory = settings.get('csv_output_directory')
         print(csv_output_directory)
         if not csv_output_directory:
             raise KeyError("Missing 'csv_output_directory' in settings.json")
 
-        # Execute the NBA data workflow
+        # execute the NBA data workflow
         print("Starting NBA data processing...")
         nba_data(csv_output_directory)
         print(f"Data successfully exported to {csv_output_directory}")

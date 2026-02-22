@@ -22,56 +22,55 @@ def add_pregame_data():
 
     # initialize data collection and fetch line data
     data_collection = Data_Collection()
-    line_data = data_collection.retrieveLineData(date_today)
+    line_data = data_collection.retrieve_line_data(date_today)
 
-    if len(line_data) == 0:  # Exit if no line data is available
+    if len(line_data) == 0:  # exit if no line data is available
         return
 
-    # Store the line data in the database
+    # store the line data in the database
     data_storage = Data_Storage()
     data_storage.insert_line_data(date_today, line_data)
 
-    # Check if any games are missing stats
+    # check if any games are missing stats
     stats_needed_list = data_storage.select_stats_needed()
-    if len(stats_needed_list) == 0:  # Exit if no stats are needed
+    if len(stats_needed_list) == 0:  # exit if no stats are needed
         return
 
-    # Retrieve and store stats for games missing them
+    # retrieve and store stats for games missing them
     stats = data_collection.retrieve_stats()
     data_storage.insert_stats(stats_needed_list, stats)
 
 def update_scores():
-    # Initialize data collection and storage
     data_collection = Data_Collection()
     data_storage = Data_Storage()
 
-    # Find dates for games that are missing scores
-    datesForScores = data_storage.findDatesForScores()
-    if len(datesForScores) == 0:  # Exit if no games need score updates
+    # find dates for games that are missing scores
+    dates_for_scores = data_storage.find_dates_for_scores()
+    if len(dates_for_scores) == 0:  # exit if no games need score updates
         return
 
-    # Retrieve and update scores for each date
-    for date in datesForScores:
-        gameScoresList = data_collection.retrieveScores(date)
-        data_storage.updateScores(date, gameScoresList)
+    # retrieve and update scores for each date
+    for date in dates_for_scores:
+        game_scores_list = data_collection.retrieve_scores(date)
+        data_storage.update_scores(date, game_scores_list)
 
 def output_csv(output_directory):
-    # Initialize data storage and retrieve data
-    dataStorage = Data_Storage()
-    headers = dataStorage.selectHeaders()
-    tableData = dataStorage.selectAllData()
+    # initialize data storage and retrieve data
+    data_storage = Data_Storage()
+    headers = data_storage.select_headers()
+    table_data = data_storage.select_all_data()
     output_path = f'{output_directory}/nba_game_data.csv'
     local_csv_path = './csv/nba_game_data.csv'
 
-    # Write data to a CSV file in the ./csv directory for local use
-    with open(local_csv_path, 'w', newline='') as csvFile:
-        csvWriter = csv.writer(csvFile)
-        csvWriter.writerow(headers)
-        csvWriter.writerows(tableData)
+    # write data to a CSV file in the ./csv directory for local use
+    with open(local_csv_path, 'w', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(headers)
+        csv_writer.writerows(table_data)
     
-    # Write data to the user-specified output directory
+    # write data to the user-specified output directory
     if not os.path.samefile(output_path, local_csv_path):
-        with open(output_path, 'w', newline='') as csvFile:
-            csvWriter = csv.writer(csvFile)
-            csvWriter.writerow(headers)
-            csvWriter.writerows(tableData)
+        with open(output_path, 'w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file)
+            csv_writer.writerow(headers)
+            csv_writer.writerows(table_data)

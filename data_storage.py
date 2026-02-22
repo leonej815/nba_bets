@@ -1,6 +1,5 @@
 import sqlite3
 
-# class interacting with the database
 class Data_Storage:
     # connects to sqlite and creates table to store data if it doesn't exist
     def __init__(self):
@@ -109,31 +108,31 @@ class Data_Storage:
             self.conn.commit()
 
     # returns a list of dates where there are game records without the final score added
-    def findDatesForScores(self):
+    def find_dates_for_scores(self):
         cursor = self.conn.cursor()
         sql = 'SELECT DISTINCT date FROM nba_game_data WHERE away_score IS NULL'
         result = cursor.execute(sql)
         self.conn.commit()
         return [str(date[0]) for date in result.fetchall()]
 
-    # gameScoresList is a list of dictionaries that have the away team, home team, away score, and home score
-    # for a given date this function updates all the records for that date with final scores using gameScoresList
-    def updateScores(self, date, gameScoresList):
+    # game_scores_list is a list of dictionaries that have the away team, home team, away score, and home score
+    # for a given date this function updates all the records for that date with final scores using game_scores_list
+    def update_scores(self, date, game_scores_list):
         cursor = self.conn.cursor()
-        for gameScoreDict in gameScoresList:
+        for game_score_dict in game_scores_list:
             # Update away scores
-            sqlAway = 'UPDATE nba_game_data SET away_score=? WHERE away=? AND date=?'
-            valAway = (gameScoreDict['away_score'], gameScoreDict['away'], date)
-            cursor.execute(sqlAway, valAway)
+            sql_away = 'UPDATE nba_game_data SET away_score=? WHERE away=? AND date=?'
+            val_away = (game_score_dict['away_score'], game_score_dict['away'], date)
+            cursor.execute(sql_away, val_away)
 
             # Update home scores
-            sqlHome = 'UPDATE nba_game_data SET home_score=? WHERE home=? AND date=?'
-            valHome = (gameScoreDict['home_score'], gameScoreDict['home'], date)
-            cursor.execute(sqlHome, valHome)
+            sql_home = 'UPDATE nba_game_data SET home_score=? WHERE home=? AND date=?'
+            val_home = (game_score_dict['home_score'], game_score_dict['home'], date)
+            cursor.execute(sql_home, val_home)
 
         self.conn.commit()
 
-    def selectAllData(self):
+    def select_all_data(self):
         cursor = self.conn.cursor()
         sql = 'SELECT * FROM nba_game_data'
         result = cursor.execute(sql)
@@ -153,9 +152,9 @@ class Data_Storage:
         ]
         return betting_data
 
-    def selectHeaders(self):
+    def select_headers(self):
         cursor = self.conn.cursor()
         sql = 'SELECT * FROM nba_game_data LIMIT 0'
         cursor.execute(sql)
         self.conn.commit()
-        return [colTup[0] for colTup in cursor.description]
+        return [col_tup[0] for col_tup in cursor.description]
