@@ -1,14 +1,29 @@
 from nba_data import nba_data
 import json
+import os
+import shutil
 
 def main():
     try:
+        settings_file = './json/settings.json'
+        settings_template_file = './json/settings.template.json'
+
+        if not os.path.exists(settings_file):
+            if os.path.exists(settings_template_file):
+                print("Local settings not found. Creating settings.json from template...")
+                shutil.copyfile(settings_template_file, settings_file)
+            else:
+                print("Error: No settings or template file found.")
+                return
+
         # Load the settings from the JSON configuration file
-        with open('./json/settings.json') as f:
+        with open(settings_file) as f:
+        # with open('./json/settings.template.json') as f:
             settings = json.loads(f.read())
 
         # Extract the output directory for CSV files
         csv_output_directory = settings.get('csv_output_directory')
+        print(csv_output_directory)
         if not csv_output_directory:
             raise KeyError("Missing 'csv_output_directory' in settings.json")
 

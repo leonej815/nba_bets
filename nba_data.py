@@ -2,6 +2,7 @@ from data_collection import Data_Collection
 from data_storage import Data_Storage
 from datetime import datetime, timedelta
 import csv
+import os
 from pytz import timezone
 
 # function to add games that haven't started yet to database
@@ -60,15 +61,17 @@ def output_csv(output_directory):
     headers = dataStorage.selectHeaders()
     tableData = dataStorage.selectAllData()
     output_path = f'{output_directory}/nba_game_data.csv'
+    local_csv_path = './csv/nba_game_data.csv'
 
     # Write data to a CSV file in the ./csv directory for local use
-    with open('./csv/nba_game_data.csv', 'w', newline='') as csvFile:
+    with open(local_csv_path, 'w', newline='') as csvFile:
         csvWriter = csv.writer(csvFile)
         csvWriter.writerow(headers)
         csvWriter.writerows(tableData)
-
+    
     # Write data to the user-specified output directory
-    with open(output_path, 'w', newline='') as csvFile:
-        csvWriter = csv.writer(csvFile)
-        csvWriter.writerow(headers)
-        csvWriter.writerows(tableData)
+    if not os.path.samefile(output_path, local_csv_path):
+        with open(output_path, 'w', newline='') as csvFile:
+            csvWriter = csv.writer(csvFile)
+            csvWriter.writerow(headers)
+            csvWriter.writerows(tableData)

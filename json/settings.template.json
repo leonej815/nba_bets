@@ -1,3 +1,3 @@
 {
-"csv_output_directory": "csv/nba_game_data.csv"
+"csv_output_directory": "./csv"
 }

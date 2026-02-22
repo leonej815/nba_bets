@@ -1,6 +1,6 @@
 import sqlite3
 
-# class for creating and interacting with the database
+# class interacting with the database
 class Data_Storage:
     # connects to sqlite and creates table to store data if it doesn't exist
     def __init__(self):
