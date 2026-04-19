@@ -4,3 +4,4 @@ json/settings.json
 res/
 nba_criteria.py
 __pycache__/
+venv/

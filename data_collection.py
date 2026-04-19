@@ -21,6 +21,7 @@ class Data_Collection:
             'pelicans':'no', 'blazers':'por', 'pistons':'det', 'spurs':'sa', 'heat':'mia', 'jazz':'utah'
         }
         min_game_count = 10
+        max_game_count = 81
         url = f'https://www.espn.com/nba/scoreboard/_/date/{date}'
         scoreboard_selector = '.Scoreboard__RowContainer'
         team_selector = '.ScoreCell__TeamName.ScoreCell__TeamName--shortDisplayName'
@@ -39,6 +40,9 @@ class Data_Collection:
             home_game_count = sum([int(x) for x in record_els[2].text.split('-')])
             if away_game_count < min_game_count or home_game_count < min_game_count:
                 print('Not enough games played')
+                continue
+            if away_game_count > max_game_count and home_game_count > max_game_count:
+                print('Regular season is over')
                 continue
 
             # extract team names
